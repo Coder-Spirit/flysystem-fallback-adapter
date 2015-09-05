@@ -2,3 +2,5 @@
 .vagrant
 Vagrantfile
 provisioning
+
+/vendor/
