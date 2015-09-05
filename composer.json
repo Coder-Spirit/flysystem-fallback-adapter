@@ -2,6 +2,7 @@
     "name": "litipk/flysystem-fallback",
     "description": "Flysystem adapter for fallback filesystems",
     "require": {
+	"php": ">=5.4.0",
         "league/flysystem": "~1.0"
     },
     "require-dev": {
