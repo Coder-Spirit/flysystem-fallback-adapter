@@ -4,6 +4,7 @@ namespace Litipk\Flysystem\Replicate;
 
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Config;
+use League\Flysystem\FileNotFoundException;
 
 class FallbackAdapter implements AdapterInterface
 {
@@ -54,7 +55,7 @@ class FallbackAdapter implements AdapterInterface
      */
     public function write($path, $contents, Config $config)
     {
-        // TODO: Implement write() method.
+        return $this->mainAdapter->write($path, $contents, $config);
     }
 
     /**
@@ -62,7 +63,7 @@ class FallbackAdapter implements AdapterInterface
      */
     public function writeStream($path, $resource, Config $config)
     {
-        // TODO: Implement writeStream() method.
+        return $this->mainAdapter->writeStream($path, $resource, $config);
     }
 
     /**
@@ -70,7 +71,7 @@ class FallbackAdapter implements AdapterInterface
      */
     public function update($path, $contents, Config $config)
     {
-        // TODO: Implement update() method.
+        return $this->mainAdapter->update($path, $contents, $config);
     }
 
     /**
@@ -78,7 +79,11 @@ class FallbackAdapter implements AdapterInterface
      */
     public function updateStream($path, $resource, Config $config)
     {
-        // TODO: Implement updateStream() method.
+        if ($this->mainAdapter->has($path)) {
+            return $this->mainAdapter->updateStream($path, $resource, $config);
+        } else {
+            return $this->mainAdapter->writeStream($path, $resource, $config);
+        }
     }
 
     /**
@@ -86,7 +91,27 @@ class FallbackAdapter implements AdapterInterface
      */
     public function rename($path, $newpath)
     {
-        // TODO: Implement rename() method.
+        if ($this->mainAdapter->has($path)) {
+            return $this->mainAdapter->rename($path, $newpath);
+        }
+
+        $buffer = $this->fallback->readStream($path);
+
+        if (false === $buffer) {
+            return false;
+        }
+
+        $writeResult = $this->mainAdapter->writeStream($newpath, $buffer['stream'], new Config());
+
+        if (is_resource($buffer['stream'])) {
+            fclose($buffer['stream']);
+        }
+
+        if (false !== $writeResult) {
+            return $this->fallback->delete($path);
+        }
+
+        return false;
     }
 
     /**
@@ -94,7 +119,23 @@ class FallbackAdapter implements AdapterInterface
      */
     public function copy($path, $newpath)
     {
-        // TODO: Implement copy() method.
+        if ($this->mainAdapter->has($path)) {
+            return $this->mainAdapter->copy($path, $newpath);
+        }
+
+        $buffer = $this->fallback->readStream($path);
+
+        if (false === $buffer) {
+            return false;
+        }
+
+        $result = $this->mainAdapter->writeStream($newpath, $buffer['stream'], new Config());
+
+        if (is_resource($buffer['stream'])) {
+            fclose($buffer['stream']);
+        }
+
+        return $result;
     }
 
     /**
@@ -102,7 +143,27 @@ class FallbackAdapter implements AdapterInterface
      */
     public function delete($path)
     {
-        // TODO: Implement delete() method.
+        $found = false;
+
+        if ($this->fallback->has($path)) {
+            $fallbackResult = $this->fallback->delete($path);
+            $found = true;
+        } else {
+            $fallbackResult = true;
+        }
+
+        if ($this->mainAdapter->has($path)) {
+            $mainResult = $this->mainAdapter->delete($path);
+            $found = true;
+        } else {
+            $mainResult = true;
+        }
+
+        if (!$found) {
+            throw new FileNotFoundException($path);
+        }
+
+        return ($fallbackResult && $mainResult);
     }
 
     /**
@@ -110,7 +171,27 @@ class FallbackAdapter implements AdapterInterface
      */
     public function deleteDir($dirname)
     {
-        // TODO: Implement deleteDir() method.
+        $found = false;
+
+        if ($this->fallback->has($dirname)) {
+            $fallbackResult = $this->fallback->deleteDir($dirname);
+            $found = true;
+        } else {
+            $fallbackResult = true;
+        }
+
+        if ($this->mainAdapter->has($dirname)) {
+            $mainResult = $this->mainAdapter->deleteDir($dirname);
+            $found = true;
+        } else {
+            $mainResult = true;
+        }
+
+        if (!$found) {
+            throw new FileNotFoundException($dirname);
+        }
+
+        return ($fallbackResult && $mainResult);
     }
 
     /**
@@ -118,7 +199,7 @@ class FallbackAdapter implements AdapterInterface
      */
     public function createDir($dirname, Config $config)
     {
-        // TODO: Implement createDir() method.
+        return $this->mainAdapter->createDir($dirname, $config);
     }
 
     /**
@@ -126,7 +207,11 @@ class FallbackAdapter implements AdapterInterface
      */
     public function setVisibility($path, $visibility)
     {
-        // TODO: Implement setVisibility() method.
+        if ($this->mainAdapter->has($path)) {
+            return $this->mainAdapter->setVisibility($path, $visibility);
+        }
+
+        return $this->fallback->setVisibility($path, $visibility);
     }
 
     /**
@@ -134,7 +219,7 @@ class FallbackAdapter implements AdapterInterface
      */
     public function has($path)
     {
-        // TODO: Implement has() method.
+        return $this->mainAdapter->has($path) || $this->fallback->has($path);
     }
 
     /**
@@ -142,7 +227,11 @@ class FallbackAdapter implements AdapterInterface
      */
     public function read($path)
     {
-        // TODO: Implement read() method.
+        if ($this->mainAdapter->has($path)) {
+            return $this->mainAdapter->read($path);
+        }
+
+        return $this->fallback->read($path);
     }
 
     /**
@@ -150,7 +239,11 @@ class FallbackAdapter implements AdapterInterface
      */
     public function readStream($path)
     {
-        // TODO: Implement readStream() method.
+        if ($this->mainAdapter->has($path)) {
+            return $this->mainAdapter->readStream($path);
+        }
+
+        return $this->fallback->readStream($path);
     }
 
     /**
@@ -166,7 +259,11 @@ class FallbackAdapter implements AdapterInterface
      */
     public function getMetadata($path)
     {
-        // TODO: Implement getMetadata() method.
+        if ($this->mainAdapter->has($path)) {
+            return $this->mainAdapter->getMetadata($path);
+        }
+
+        return $this->fallback->getMetadata($path);
     }
 
     /**
@@ -174,7 +271,11 @@ class FallbackAdapter implements AdapterInterface
      */
     public function getSize($path)
     {
-        // TODO: Implement getSize() method.
+        if ($this->mainAdapter->has($path)) {
+            return $this->mainAdapter->getSize($path);
+        }
+
+        return $this->fallback->getSize($path);
     }
 
     /**
@@ -182,7 +283,11 @@ class FallbackAdapter implements AdapterInterface
      */
     public function getMimetype($path)
     {
-        // TODO: Implement getMimetype() method.
+        if ($this->mainAdapter->has($path)) {
+            return $this->mainAdapter->getMimetype($path);
+        }
+
+        return $this->fallback->getMimetype($path);
     }
 
     /**
@@ -190,7 +295,11 @@ class FallbackAdapter implements AdapterInterface
      */
     public function getTimestamp($path)
     {
-        // TODO: Implement getTimestamp() method.
+        if ($this->mainAdapter->has($path)) {
+            return $this->mainAdapter->getTimestamp($path);
+        }
+
+        return $this->fallback->getTimestamp($path);
     }
 
     /**
@@ -198,6 +307,10 @@ class FallbackAdapter implements AdapterInterface
      */
     public function getVisibility($path)
     {
-        // TODO: Implement getVisibility() method.
+        if ($this->mainAdapter->has($path)) {
+            return $this->mainAdapter->getVisibility($path);
+        }
+
+        return $this->fallback->getVisibility($path);
     }
 }
