@@ -7,6 +7,47 @@ use League\Flysystem\Config;
 
 class FallbackAdapter implements AdapterInterface
 {
+    /**
+     * @var AdapterInterface
+     */
+    protected $mainAdapter;
+
+    /**
+     * @var AdapterInterface
+     */
+    protected $fallback;
+
+    /**
+     * Constructor.
+     *
+     * @param AdapterInterface $mainAdapter
+     * @param AdapterInterface $fallback
+     */
+    public function __construct(AdapterInterface $mainAdapter, AdapterInterface $fallback)
+    {
+        $this->mainAdapter = $mainAdapter;
+        $this->fallback = $fallback;
+    }
+
+    /**
+     * Returns the main adapter.
+     *
+     * @return AdapterInterface
+     */
+    public function getMainAdapter()
+    {
+        return $this->mainAdapter;
+    }
+
+    /**
+     * Returns the fallback adapter.
+     *
+     * @return AdapterInterface
+     */
+    public function getFallbackAdapter()
+    {
+        return $this->fallback;
+    }
 
     /**
      * {@inheritdoc}
