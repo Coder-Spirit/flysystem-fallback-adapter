@@ -21,20 +21,20 @@ class FallbackAdapter implements AdapterInterface
     /**
      * @var bool
      */
-    protected $ensureRedundancy;
+    protected $forceCopyOnMain;
 
     /**
      * Constructor.
      *
      * @param AdapterInterface $mainAdapter
      * @param AdapterInterface $fallback
-     * @param boolean          $ensureRedundancy
+     * @param boolean          $forceCopyOnMain
      */
-    public function __construct(AdapterInterface $mainAdapter, AdapterInterface $fallback, $ensureRedundancy = false)
+    public function __construct(AdapterInterface $mainAdapter, AdapterInterface $fallback, $forceCopyOnMain = false)
     {
         $this->mainAdapter = $mainAdapter;
         $this->fallback = $fallback;
-        $this->ensureRedundancy = $ensureRedundancy;
+        $this->forceCopyOnMain = $forceCopyOnMain;
     }
 
     /**
@@ -225,7 +225,13 @@ class FallbackAdapter implements AdapterInterface
             return $this->mainAdapter->read($path);
         }
 
-        return $this->fallback->read($path);
+        $result = $this->fallback->read($path);
+
+        if (false !== $result && $this->forceCopyOnMain) {
+            $this->mainAdapter->write($path, $result['contents'], new Config());
+        }
+
+        return $result;
     }
 
     /**
@@ -237,7 +243,13 @@ class FallbackAdapter implements AdapterInterface
             return $this->mainAdapter->readStream($path);
         }
 
-        return $this->fallback->readStream($path);
+        $result = $this->fallback->readStream($path);
+
+        if (false !== $result && $this->forceCopyOnMain) {
+            $this->writeStream($path, $result['stream'], new Config());
+        }
+
+        return $result;
     }
 
     /**
