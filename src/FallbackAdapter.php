@@ -19,15 +19,22 @@ class FallbackAdapter implements AdapterInterface
     protected $fallback;
 
     /**
+     * @var bool
+     */
+    protected $ensureRedundancy;
+
+    /**
      * Constructor.
      *
      * @param AdapterInterface $mainAdapter
      * @param AdapterInterface $fallback
+     * @param boolean          $ensureRedundancy
      */
-    public function __construct(AdapterInterface $mainAdapter, AdapterInterface $fallback)
+    public function __construct(AdapterInterface $mainAdapter, AdapterInterface $fallback, $ensureRedundancy = false)
     {
         $this->mainAdapter = $mainAdapter;
         $this->fallback = $fallback;
+        $this->ensureRedundancy = $ensureRedundancy;
     }
 
     /**
@@ -55,6 +62,11 @@ class FallbackAdapter implements AdapterInterface
      */
     public function write($path, $contents, Config $config)
     {
+        // This is done to allow "append" mode in the underlying main adapter
+        if (!$this->mainAdapter->has($path) && $this->fallback->has($path)) {
+            $this->portFromFallback($path, $path);
+        }
+
         return $this->mainAdapter->write($path, $contents, $config);
     }
 
@@ -71,6 +83,11 @@ class FallbackAdapter implements AdapterInterface
      */
     public function update($path, $contents, Config $config)
     {
+        // This is done to allow "append" mode in the underlying main adapter
+        if (!$this->mainAdapter->has($path) && $this->fallback->has($path)) {
+            $this->portFromFallback($path, $path);
+        }
+
         return $this->mainAdapter->update($path, $contents, $config);
     }
 
@@ -82,6 +99,7 @@ class FallbackAdapter implements AdapterInterface
         if ($this->mainAdapter->has($path)) {
             return $this->mainAdapter->updateStream($path, $resource, $config);
         } else {
+            // TODO: Review, is this necessary?
             return $this->mainAdapter->writeStream($path, $resource, $config);
         }
     }
@@ -95,19 +113,7 @@ class FallbackAdapter implements AdapterInterface
             return $this->mainAdapter->rename($path, $newpath);
         }
 
-        $buffer = $this->fallback->readStream($path);
-
-        if (false === $buffer) {
-            return false;
-        }
-
-        $writeResult = $this->mainAdapter->writeStream($newpath, $buffer['stream'], new Config());
-
-        if (is_resource($buffer['stream'])) {
-            fclose($buffer['stream']);
-        }
-
-        if (false !== $writeResult) {
+        if (false !== $this->portFromFallback($path, $newpath)) {
             return $this->fallback->delete($path);
         }
 
@@ -123,19 +129,7 @@ class FallbackAdapter implements AdapterInterface
             return $this->mainAdapter->copy($path, $newpath);
         }
 
-        $buffer = $this->fallback->readStream($path);
-
-        if (false === $buffer) {
-            return false;
-        }
-
-        $result = $this->mainAdapter->writeStream($newpath, $buffer['stream'], new Config());
-
-        if (is_resource($buffer['stream'])) {
-            fclose($buffer['stream']);
-        }
-
-        return $result;
+        return $this->portFromFallback($path, $newpath);
     }
 
     /**
@@ -312,5 +306,28 @@ class FallbackAdapter implements AdapterInterface
         }
 
         return $this->fallback->getVisibility($path);
+    }
+
+    /**
+     * Copies a resource accessible through the fallback adapter to the filesystem abstracted with the main adapter.
+     *
+     * @param $path
+     * @return array|false
+     */
+    private function portFromFallback($path, $newpath)
+    {
+        $buffer = $this->fallback->readStream($path);
+
+        if (false === $buffer) {
+            return false;
+        }
+
+        $result = $this->mainAdapter->writeStream($newpath, $buffer['stream'], new Config());
+
+        if (is_resource($buffer['stream'])) {
+            fclose($buffer['stream']);
+        }
+
+        return $result;
     }
 }
