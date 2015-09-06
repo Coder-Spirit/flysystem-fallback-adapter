@@ -245,7 +245,8 @@ class FallbackAdapter implements AdapterInterface
      */
     public function listContents($directory = '', $recursive = false)
     {
-        // TODO: Implement listContents() method.
+        // TODO: Find an elegant way to merge the main & fallback listings.
+        return $this->mainAdapter->listContents($directory, $recursive);
     }
 
     /**
