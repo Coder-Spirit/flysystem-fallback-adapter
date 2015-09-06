@@ -9,6 +9,11 @@
         "phpunit/phpunit": "~4.0",
         "mockery/mockery": "0.9.*"
     },
+    "autoload": {
+        "psr-4": {
+            "Litipk\\Flysystem\\Fallback\\": "src/"
+        }
+    },
     "license": "MIT",
     "authors": [
         {

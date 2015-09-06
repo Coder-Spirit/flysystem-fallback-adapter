@@ -1,6 +1,6 @@
 <?php
 
-namespace Litipk\Flysystem\Replicate;
+namespace Litipk\Flysystem\Fallback;
 
 use League\Flysystem\AdapterInterface;
 use League\Flysystem\Config;
