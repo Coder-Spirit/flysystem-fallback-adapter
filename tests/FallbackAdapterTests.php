@@ -9,7 +9,11 @@ class FallbackAdapterTests extends \PHPUnit_Framework_TestCase
 {
     /** @var  FallbackAdapter */
     protected $adapter;
+
+    /** @var  Mockery\MockInterface */
     protected $mainAdapter;
+
+    /** @var  Mockery\MockInterface */
     protected $fallbackAdapter;
 
     public function setup()
@@ -32,17 +36,33 @@ class FallbackAdapterTests extends \PHPUnit_Framework_TestCase
 
     public function testWrite()
     {
-        //$this->source->shouldReceive('update')->once()->andReturn(true);
-        /** @var Mockery\MockInterface $mainAdapter */
-        $mainAdapter = $this->mainAdapter;
-        /** @var Mockery\MockInterface $fallbackAdapter */
-        $fallbackAdapter = $this->fallbackAdapter;
 
-        $mainAdapter->shouldReceive('write')->once()->andReturn(true);
-        $mainAdapter->shouldReceive('has')->andReturn(true);
+        $this->mainAdapter->shouldReceive('write')->once()->andReturn(true);
+        $this->mainAdapter->shouldReceive('has')->andReturn(true);
 
-        $fallbackAdapter->shouldNotReceive('write');
+        $this->fallbackAdapter->shouldNotReceive('write');
 
+        // We're testing that the return value is the same that returns mainAdapter, not that's true.
         $this->assertTrue($this->adapter->write('/path', 'Hello World', new Config()));
+    }
+
+    public function testReadFromMainFilesystem()
+    {
+        $this->mainAdapter->shouldReceive('has')->atLeast(1)->andReturn(true);
+        $this->mainAdapter->shouldReceive('read')->atLeast(1)->andReturn(true);
+
+        $this->fallbackAdapter->shouldNotReceive('read');
+
+        $this->assertTrue($this->adapter->read('/path'));
+    }
+
+    public function testReadFromFallbackFilesystem()
+    {
+        $this->mainAdapter->shouldReceive('has')->atLeast(1)->andReturn(false);
+        $this->mainAdapter->shouldNotReceive('read');
+
+        $this->fallbackAdapter->shouldReceive('read')->atLeast(1)->andReturn(true);
+
+        $this->assertTrue($this->adapter->read('/path'));
     }
 }
