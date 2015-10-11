@@ -325,7 +325,7 @@ class FallbackAdapter implements AdapterInterface
      * Copies a resource accessible through the fallback adapter to the filesystem abstracted with the main adapter.
      *
      * @param $path
-     * @return array|false
+     * @return boolean
      */
     private function portFromFallback($path, $newpath)
     {
@@ -341,6 +341,6 @@ class FallbackAdapter implements AdapterInterface
             fclose($buffer['stream']);
         }
 
-        return $result;
+        return (false !== $result);
     }
 }
