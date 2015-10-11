@@ -29,4 +29,20 @@ class FallbackAdapterTests extends \PHPUnit_Framework_TestCase
     {
         $this->assertEquals($this->fallbackAdapter, $this->adapter->getFallbackAdapter());
     }
+
+    public function testWrite()
+    {
+        //$this->source->shouldReceive('update')->once()->andReturn(true);
+        /** @var Mockery\MockInterface $mainAdapter */
+        $mainAdapter = $this->mainAdapter;
+        /** @var Mockery\MockInterface $fallbackAdapter */
+        $fallbackAdapter = $this->fallbackAdapter;
+
+        $mainAdapter->shouldReceive('write')->once()->andReturn(true);
+        $mainAdapter->shouldReceive('has')->andReturn(true);
+
+        $fallbackAdapter->shouldNotReceive('write');
+
+        $this->assertTrue($this->adapter->write('/path', 'Hello World', new Config()));
+    }
 }
