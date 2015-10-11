@@ -4,10 +4,15 @@
     "license": "MIT",
     "authors": [
         {
-            "name": "Andres Correa Casablanca",
+            "name": "Andrés Correa Casablanca",
             "email": "castarco@litipk.com"
         }
     ],
+    "support": {
+        "email": "castarco@litipk.com",
+        "issues": "http://github.com/Litipk/flysystem-fallback-adapter/issues",
+        "source": "http://github.com/Litipk/flysystem-fallback-adapter"
+    },
     "require": {
         "php": ">=5.4.0",
         "league/flysystem": "~1.0"
