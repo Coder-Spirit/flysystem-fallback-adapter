@@ -6,6 +6,9 @@
 [![Coverage Status](https://img.shields.io/scrutinizer/coverage/g/litipk/flysystem-fallback-adapter.svg?style=flat-square)](https://scrutinizer-ci.com/g/litipk/flysystem-fallback-adapter/code-structure)
 [![Quality Score](https://img.shields.io/scrutinizer/g/litipk/flysystem-fallback-adapter.svg?style=flat-square)](https://scrutinizer-ci.com/g/litipk/flysystem-fallback-adapter)
 [![Software License](https://img.shields.io/badge/license-MIT-brightgreen.svg?style=flat-square)](LICENSE)
+[![Packagist Version](https://img.shields.io/packagist/v/litipk/flysystem-fallback-adapter.svg?style=flat-square)](https://packagist.org/packages/litipk/flysystem-fallback-adapter)
+[![Total Downloads](https://img.shields.io/packagist/dt/litipk/flysystem-fallback-adapter.svg?style=flat-square)](https://packagist.org/packages/litipk/flysystem-fallback-adapter)
+
 
 ## Installation
 
