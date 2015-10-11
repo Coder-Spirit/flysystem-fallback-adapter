@@ -1,5 +1,5 @@
 {
-    "name": "litipk/flysystem-fallback",
+    "name": "litipk/flysystem-fallback-adapter",
     "description": "Flysystem adapter for fallback filesystems",
     "license": "MIT",
     "authors": [
