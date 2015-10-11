@@ -8,7 +8,7 @@ php:
 
 before_install:
   - bash -c 'mkdir bin'
-  - bash -c 'curl -sS https://getcomposer.org/installer | php -- --install-dir=bin'
+  - travis_retry bash -c 'curl -sS https://getcomposer.org/installer | php -- --install-dir=bin'
   - bash -c 'chmod +x bin/composer.phar'
   - bash -c 'if [ "$TRAVIS_PHP_VERSION" == "hhvm" ]; then rm phpunit.xml; fi;'
   - bash -c 'if [ "$TRAVIS_PHP_VERSION" == "hhvm" ]; then mv phpunit.hhvm.xml phpunit.xml; fi;'
@@ -17,7 +17,7 @@ install:
   - travis_retry ./bin/composer.phar install --no-interaction --prefer-source
 
 script:
-  - bin/phpunit
+  - vendor/bin/phpunit
 
 #after_script:
 #  - wget https://scrutinizer-ci.com/ocular.phar

@@ -1,8 +1,15 @@
 {
     "name": "litipk/flysystem-fallback",
     "description": "Flysystem adapter for fallback filesystems",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Andres Correa Casablanca",
+            "email": "castarco@litipk.com"
+        }
+    ],
     "require": {
-	"php": ">=5.4.0",
+        "php": ">=5.4.0",
         "league/flysystem": "~1.0"
     },
     "require-dev": {
@@ -14,12 +21,5 @@
             "Litipk\\Flysystem\\Fallback\\": "src/"
         }
     },
-    "license": "MIT",
-    "authors": [
-        {
-            "name": "Andres Correa Casablanca",
-            "email": "castarco@litipk.com"
-        }
-    ],
     "minimum-stability": "stable"
 }
