@@ -10,7 +10,7 @@
 ## Installation
 
 ```bash
-composer require litipk/flysystem-fallback-adapter=0.1
+composer require litipk/flysystem-fallback-adapter
 ```
 
 ## Usage
