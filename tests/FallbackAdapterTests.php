@@ -34,7 +34,31 @@ class FallbackAdapterTests extends \PHPUnit_Framework_TestCase
         $this->assertEquals($this->fallbackAdapter, $this->adapter->getFallbackAdapter());
     }
 
-    public function testWrite()
+    public function testHas_PathExistsInMain()
+    {
+        $this->mainAdapter->shouldReceive('has')->andReturn(true);
+        $this->fallbackAdapter->shouldNotReceive('has');
+
+        $this->assertTrue($this->adapter->has('/path'));
+    }
+
+    public function testHas_PathExistsInFallback()
+    {
+        $this->mainAdapter->shouldReceive('has')->andReturn(false);
+        $this->fallbackAdapter->shouldReceive('has')->andReturn(true);
+
+        $this->assertTrue($this->adapter->has('/path'));
+    }
+
+    public function testHas_PathDoesNotExist()
+    {
+        $this->mainAdapter->shouldReceive('has')->andReturn(false);
+        $this->fallbackAdapter->shouldReceive('has')->andReturn(false);
+
+        $this->assertFalse($this->adapter->has('/path'));
+    }
+
+    public function testWrite_PathExistsInMain()
     {
 
         $this->mainAdapter->shouldReceive('write')->once()->andReturn(true);
@@ -46,7 +70,7 @@ class FallbackAdapterTests extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->write('/path', 'Hello World', new Config()));
     }
 
-    public function testReadFromMainFilesystem()
+    public function testRead_PathExistsInMain()
     {
         $this->mainAdapter->shouldReceive('has')->atLeast(1)->andReturn(true);
         $this->mainAdapter->shouldReceive('read')->atLeast(1)->andReturn(true);
@@ -56,7 +80,7 @@ class FallbackAdapterTests extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->read('/path'));
     }
 
-    public function testReadFromFallbackFilesystem()
+    public function testRead_PathExistsInFallback()
     {
         $this->mainAdapter->shouldReceive('has')->atLeast(1)->andReturn(false);
         $this->mainAdapter->shouldNotReceive('read');
