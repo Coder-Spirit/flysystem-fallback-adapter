@@ -126,4 +126,74 @@ class FallbackAdapterTests extends \PHPUnit_Framework_TestCase
 
         $this->assertTrue($this->adapter->read('/path'));
     }
+
+    public function testListContents()
+    {
+        $this->mainAdapter->shouldReceive('listContents')->once()->andReturn([
+            [
+                "type" => "file",
+                "path" => "A",
+                "timestamp" => 1444950202,
+                "size" => 0,
+            ],
+            [
+                "type" => "file",
+                "path" => "B",
+                "timestamp" => 1444950204,
+                "size" => 0,
+            ],
+            [
+                "type" => "dir",
+                "path" => "C",
+                "timestamp" => 1444950309,
+            ]
+        ]);
+        $this->fallbackAdapter->shouldReceive('listContents')->once()->andReturn([
+            [
+                "type" => "file",
+                "path" => "B",
+                "timestamp" => 1444950204,
+                "size" => 0,
+            ],
+            [
+                "type" => "dir",
+                "path" => "C",
+                "timestamp" => 1444950309,
+            ],
+            [
+                "type" => "file",
+                "path" => "D",
+                "timestamp" => 1444950307,
+                "size" => 0,
+            ]
+        ]);
+
+        $this->assertEquals(
+            [
+                [
+                    "type" => "file",
+                    "path" => "A",
+                    "timestamp" => 1444950202,
+                    "size" => 0,
+                ],
+                [
+                    "type" => "file",
+                    "path" => "B",
+                    "timestamp" => 1444950204,
+                    "size" => 0,
+                ],
+                [
+                    "type" => "dir",
+                    "path" => "C",
+                    "timestamp" => 1444950309,
+                ],
+                [
+                    "type" => "file",
+                    "path" => "D",
+                    "timestamp" => 1444950307,
+                    "size" => 0,
+                ]
+            ],
+            $this->adapter->listContents());
+    }
 }

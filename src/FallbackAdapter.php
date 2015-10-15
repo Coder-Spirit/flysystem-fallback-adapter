@@ -257,8 +257,21 @@ class FallbackAdapter implements AdapterInterface
      */
     public function listContents($directory = '', $recursive = false)
     {
-        // TODO: Find an elegant way to merge the main & fallback listings.
-        return $this->mainAdapter->listContents($directory, $recursive);
+        $tmpResult = $this->mainAdapter->listContents($directory, $recursive);
+
+        $inverseRef = [];
+        foreach ($tmpResult as $index => $mainContent) {
+            $inverseRef[$mainContent['path']] = $index;
+        }
+
+        $fallbackContents = $this->fallback->listContents($directory, $recursive);
+        foreach ($fallbackContents as $fallbackContent) {
+            if (!isset($inverseRef[$fallbackContent['path']])) {
+                $tmpResult[] = $fallbackContent;
+            }
+        }
+
+        return $tmpResult;
     }
 
     /**
