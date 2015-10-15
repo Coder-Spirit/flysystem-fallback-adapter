@@ -60,13 +60,26 @@ class FallbackAdapterTests extends \PHPUnit_Framework_TestCase
 
     public function testWrite_PathExistsInMain()
     {
-
-        $this->mainAdapter->shouldReceive('write')->once()->andReturn(true);
         $this->mainAdapter->shouldReceive('has')->andReturn(true);
+        $this->mainAdapter->shouldReceive('write')->once()->andReturn(true);
 
         $this->fallbackAdapter->shouldNotReceive('write');
 
         // We're testing that the return value is the same that returns mainAdapter, not that's true.
+        $this->assertTrue($this->adapter->write('/path', 'Hello World', new Config()));
+    }
+
+    public function testWrite_PathExistsInFallback()
+    {
+        $this->mainAdapter->shouldReceive('has')->once()->andReturn(false);
+        $this->fallbackAdapter->shouldReceive('has')->once()->andReturn(true);
+
+        $this->fallbackAdapter->shouldNotReceive('write');
+        $this->fallbackAdapter->shouldReceive('readStream')->once()->andReturn(['stream'=>null]);
+
+        $this->mainAdapter->shouldReceive('writeStream')->once()->andReturn(true);
+        $this->mainAdapter->shouldReceive('write')->once()->andReturn(true);
+
         $this->assertTrue($this->adapter->write('/path', 'Hello World', new Config()));
     }
 
