@@ -127,9 +127,11 @@ class FallbackAdapter implements AdapterInterface
     {
         if ($this->mainAdapter->has($path)) {
             return $this->mainAdapter->copy($path, $newpath);
+        } elseif ($this->fallback->has($path)) {
+            return $this->portFromFallback($path, $newpath);
         }
 
-        return $this->portFromFallback($path, $newpath);
+        return false;
     }
 
     /**
