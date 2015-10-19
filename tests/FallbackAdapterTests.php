@@ -147,6 +147,14 @@ class FallbackAdapterTests extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->copy('/src', '/dest'));
     }
 
+    public function testCopy_PathDoesNotExist()
+    {
+        $this->mainAdapter->shouldReceive('has')->once()->andReturn(false);
+        $this->fallbackAdapter->shouldReceive('has')->once()->andReturn(false);
+
+        $this->assertFalse($this->adapter->copy('/src', '/dest'));
+    }
+
     public function testListContents()
     {
         $this->mainAdapter->shouldReceive('listContents')->once()->andReturn([
