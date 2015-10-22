@@ -113,6 +113,39 @@ class FallbackAdapterTests extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->updateStream('/path', 'Hello World', new Config()));
     }
 
+    public function testDelete_Main()
+    {
+        $this->mainAdapter->shouldReceive('has')->once()->andReturn(true);
+        $this->fallbackAdapter->shouldReceive('has')->once()->andReturn(false);
+
+        $this->mainAdapter->shouldReceive('delete');
+        $this->fallbackAdapter->shouldNotReceive('delete');
+
+        $this->adapter->delete('/path');
+    }
+
+    public function testDelete_Fallback()
+    {
+        $this->mainAdapter->shouldReceive('has')->once()->andReturn(false);
+        $this->fallbackAdapter->shouldReceive('has')->once()->andReturn(true);
+
+        $this->fallbackAdapter->shouldReceive('delete');
+        $this->mainAdapter->shouldNotReceive('delete');
+
+        $this->adapter->delete('/path');
+    }
+
+    public function testDelete_MainFallback()
+    {
+        $this->mainAdapter->shouldReceive('has')->once()->andReturn(true);
+        $this->fallbackAdapter->shouldReceive('has')->once()->andReturn(true);
+
+        $this->mainAdapter->shouldReceive('delete');
+        $this->fallbackAdapter->shouldReceive('delete');
+
+        $this->adapter->delete('/path');
+    }
+
     public function testRead_PathExistsInMain()
     {
         $this->mainAdapter->shouldReceive('has')->atLeast(1)->andReturn(true);
