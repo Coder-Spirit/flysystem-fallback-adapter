@@ -155,6 +155,29 @@ class FallbackAdapterTests extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->adapter->copy('/src', '/dest'));
     }
 
+    public function testGetVisibility_PathExistsInMain()
+    {
+        $this->mainAdapter->shouldReceive('has')->once()->andReturn(true);
+        $this->mainAdapter->shouldReceive('getVisibility')->once()->andReturn(true);
+        $this->fallbackAdapter->shouldNotReceive('getVisibility');
+
+        $this->assertTrue($this->adapter->getVisibility('/path'));
+    }
+
+    public function testGetVisibility_PathExistsInFallback()
+    {
+        $this->mainAdapter->shouldReceive('has')->once()->andReturn(false);
+        $this->mainAdapter->shouldNotReceive('getVisibility');
+        $this->fallbackAdapter->shouldReceive('getVisibility')->once()->andReturn(true);
+
+        $this->assertTrue($this->adapter->getVisibility('/path'));
+    }
+
+    public function testGetVisibility_PathDoesNotExist()
+    {
+        // TODO : Assert Exception?
+    }
+
     public function testListContents()
     {
         $this->mainAdapter->shouldReceive('listContents')->once()->andReturn([
