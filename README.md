@@ -10,6 +10,10 @@
 [![Total Downloads](https://img.shields.io/packagist/dt/litipk/flysystem-fallback-adapter.svg?style=flat-square)](https://packagist.org/packages/litipk/flysystem-fallback-adapter)
 
 
+This adapter has been created to allow using a fallback filesystem for read operations when the files can't be accessed
+through the main adapter.
+
+
 ## Installation
 
 ```bash
