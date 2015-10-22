@@ -58,53 +58,30 @@ class FallbackAdapterTests extends \PHPUnit_Framework_TestCase
         $this->assertFalse($this->adapter->has('/path'));
     }
 
-    public function testWrite_PathExistsInMain()
+    public function testWrite()
     {
         // Preconditions
-        $this->mainAdapter->shouldReceive('has')->once()->andReturn(true);
-
         $this->mainAdapter->shouldReceive('write')->once()->andReturn(true);
-        $this->fallbackAdapter->shouldNotReceive('write');
 
         // We're testing that the returned value is the same that returns mainAdapter, not that's true.
         $this->assertTrue($this->adapter->write('/path', 'Hello World', new Config()));
     }
 
-    public function testWrite_PathExistsInFallback()
+    public function testWriteStream()
     {
         // Preconditions
-        $this->mainAdapter->shouldReceive('has')->once()->andReturn(false);
-        $this->fallbackAdapter->shouldReceive('has')->once()->andReturn(true);
-
-        // The data is retrieved through the fallback adapter to be written through the main adapter,
-        // this is done in order to ensure consistency in case the 'append mode' is used.
-        $this->fallbackAdapter->shouldNotReceive('write');
-        $this->fallbackAdapter->shouldReceive('readStream')->once()->andReturn(['stream'=>null]);
-
         $this->mainAdapter->shouldReceive('writeStream')->once()->andReturn(true);
 
-        // The new data is written AFTER copying the old data, this is inefficient but ensures consistency.
-        $this->mainAdapter->shouldReceive('write')->once()->andReturn(true);
-
-        // We're testing that the return valu
-        $this->assertTrue($this->adapter->write('/path', 'Hello World', new Config()));
+        // We're testing that the returned value is the same that returns mainAdapter, not that's true.
+        $this->assertTrue($this->adapter->writeStream('/path', 'Hello World', new Config()));
     }
 
-    public function testWrite_PathDoesNotExist()
+    public function testUpdate_PathExistsInMain()
     {
-        // Preconditions
-        $this->mainAdapter->shouldReceive('has')->once()->andReturn(false);
-        $this->fallbackAdapter->shouldReceive('has')->once()->andReturn(false);
+        $this->mainAdapter->shouldReceive('has')->once()->andReturn(true);
+        $this->mainAdapter->shouldReceive('update')->once()->andReturn(true);
 
-        // We ensure we don't try to copy anything from the fallback to the main adapter
-        $this->fallbackAdapter->shouldNotReceive('readStream');
-        $this->mainAdapter->shouldNotReceive('writeStream');
-
-        // Only the main adapter receives a write operation
-        $this->fallbackAdapter->shouldNotReceive('write');
-        $this->mainAdapter->shouldReceive('write')->once()->andReturn(true);
-
-        $this->assertTrue($this->adapter->write('/path', 'Hello World', new Config()));
+        $this->assertTrue($this->adapter->update('/path', 'Hello World', new Config()));
     }
 
     public function testRead_PathExistsInMain()

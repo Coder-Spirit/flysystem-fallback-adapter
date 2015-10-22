@@ -62,11 +62,6 @@ class FallbackAdapter implements AdapterInterface
      */
     public function write($path, $contents, Config $config)
     {
-        // This is done to allow "append" mode in the underlying main adapter
-        if (!$this->mainAdapter->has($path) && $this->fallback->has($path)) {
-            $this->portFromFallback($path, $path);
-        }
-
         return $this->mainAdapter->write($path, $contents, $config);
     }
 
