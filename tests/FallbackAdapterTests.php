@@ -97,6 +97,22 @@ class FallbackAdapterTests extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->update('/path', 'Hello World', new Config()));
     }
 
+    public function testUpdateStream_PathExistsInFallback()
+    {
+        $this->mainAdapter->shouldReceive('has')->once()->andReturn(true);
+        $this->mainAdapter->shouldReceive('updateStream')->once()->andReturn(true);
+
+        $this->assertTrue($this->adapter->updateStream('/path', 'Hello World', new Config()));
+    }
+
+    public function testUpdateStream_PathDoesNotExists()
+    {
+        $this->mainAdapter->shouldReceive('has')->once()->andReturn(false);
+        $this->mainAdapter->shouldReceive('writeStream')->once()->andReturn(true);
+
+        $this->assertTrue($this->adapter->updateStream('/path', 'Hello World', new Config()));
+    }
+
     public function testRead_PathExistsInMain()
     {
         $this->mainAdapter->shouldReceive('has')->atLeast(1)->andReturn(true);
