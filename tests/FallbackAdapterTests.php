@@ -127,6 +127,26 @@ class FallbackAdapterTests extends \PHPUnit_Framework_TestCase
         $this->assertTrue($this->adapter->read('/path'));
     }
 
+    public function testRename_PathExistsInMain()
+    {
+        $this->mainAdapter->shouldReceive('has')->once()->andReturn(true);
+        $this->mainAdapter->shouldReceive('rename')->once()->andReturn(true);
+
+        $this->assertTrue($this->adapter->rename('/src', '/dest'));
+    }
+
+    public function testRename_PathExistsInFallback()
+    {
+        $this->mainAdapter->shouldReceive('has')->once()->andReturn(false);
+
+        $this->fallbackAdapter->shouldReceive('readStream')->once()->andReturn(['stream'=>null]);
+        $this->mainAdapter->shouldReceive('writeStream')->once()->andReturn(true);
+
+        $this->fallbackAdapter->shouldReceive('delete')->once()->andReturn(true);
+
+        $this->assertTrue($this->adapter->rename('/src', '/dest'));
+    }
+
     public function testCopy_PathExistsInMain()
     {
         $this->mainAdapter->shouldReceive('has')->once()->andReturn(true);
