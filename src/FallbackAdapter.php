@@ -218,8 +218,10 @@ class FallbackAdapter implements AdapterInterface
      */
     public function read($path)
     {
-        if ($this->mainAdapter->has($path)) {
-            return $this->mainAdapter->read($path);
+        $result = $this->mainAdapter->read($path);
+
+        if (false !== $result) {
+            return $result;
         }
 
         $result = $this->fallback->read($path);
@@ -236,8 +238,10 @@ class FallbackAdapter implements AdapterInterface
      */
     public function readStream($path)
     {
-        if ($this->mainAdapter->has($path)) {
-            return $this->mainAdapter->readStream($path);
+        $result = $this->mainAdapter->readStream($path);
+
+        if (false !== $result) {
+            return $result;
         }
 
         $result = $this->fallback->readStream($path);
