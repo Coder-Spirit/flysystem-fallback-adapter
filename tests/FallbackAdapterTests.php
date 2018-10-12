@@ -148,7 +148,8 @@ class FallbackAdapterTests extends \PHPUnit_Framework_TestCase
 
     public function testRead_PathExistsInMain()
     {
-        $this->mainAdapter->shouldReceive('read')->once()->andReturn(true);
+        $this->mainAdapter->shouldReceive('has')->atLeast(1)->andReturn(true);
+        $this->mainAdapter->shouldReceive('read')->atLeast(1)->andReturn(true);
 
         $this->fallbackAdapter->shouldNotReceive('read');
 
@@ -157,9 +158,10 @@ class FallbackAdapterTests extends \PHPUnit_Framework_TestCase
 
     public function testRead_PathExistsInFallback()
     {
-        $this->mainAdapter->shouldReceive('read')->once()->andReturn(false);
+        $this->mainAdapter->shouldReceive('has')->atLeast(1)->andReturn(false);
+        $this->mainAdapter->shouldNotReceive('read');
 
-        $this->fallbackAdapter->shouldReceive('read')->once()->andReturn(true);
+        $this->fallbackAdapter->shouldReceive('read')->atLeast(1)->andReturn(true);
 
         $this->assertTrue($this->adapter->read('/path'));
     }
